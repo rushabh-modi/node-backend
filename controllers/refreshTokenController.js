@@ -1,13 +1,13 @@
-const User = require("../model/User");
-const jwt = require("jsonwebtoken");
+const User = require('../model/User');
+const jwt = require('jsonwebtoken');
 
 const handleRefreshToken = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.sendStatus(401);
   const refreshToken = cookies.jwt;
-  res.clearCookie("jwt", {
+  res.clearCookie('jwt', {
     httpOnly: true,
-    sameSite: "None",
+    sameSite: 'None',
     secure: true,
   });
 
@@ -55,24 +55,24 @@ const handleRefreshToken = async (req, res) => {
       const accessToken = jwt.sign(
         { UserInfo: { username: decoded.username, roles: roles } },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "30s" }
+        { expiresIn: '60s' }
       );
       const newRefreshToken = jwt.sign(
         { username: foundUser.username },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: '1d' }
       );
 
       //saving new refreshToken with current user
       foundUser.refreshToken = [...newRefreshTokenArray, newRefreshToken];
       const result = await foundUser.save();
-      res.cookie("jwt", newRefreshToken, {
+      res.cookie('jwt', newRefreshToken, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: "None",
+        sameSite: 'None',
         secure: true,
       });
-      res.json({ roles, accessToken });
+      res.json({ accessToken });
     }
   );
 };
