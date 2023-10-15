@@ -3,18 +3,16 @@ require('express-async-errors');
 const express = require('express');
 const app = express();
 const ejs = require('ejs');
-const path = require('path');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
 const { logger, logEvents } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
-// const verifyJWT = require('./middleware/verifyJWT');
 const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
 const mongoose = require('mongoose');
 const connectDB = require('./config/dbConn');
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4500;
 
 console.log(process.env.NODE_ENV);
 
@@ -50,8 +48,8 @@ app.use('/register', require('./routes/register'));
 app.use('/auth', require('./routes/auth'));
 app.use('/refresh', require('./routes/refresh'));
 app.use('/logout', require('./routes/logout'));
-// app.use(verifyJWT); // all the routes after this line are protected with jwt
-app.use('/employees', require('./routes/api/employees'));
+
+// all the routes after this line are protected with jwt (Admin access)
 app.use('/users', require('./routes/api/users'));
 
 // !if path not exists
@@ -64,7 +62,9 @@ app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
   console.log('connected to mongoDB');
-  app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
+  app.listen(PORT, () =>
+    console.log(`Example app listening on port http://localhost:${PORT}/`)
+  );
 });
 
 mongoose.connection.on('error', (err) => {
